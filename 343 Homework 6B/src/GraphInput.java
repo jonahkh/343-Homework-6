@@ -99,6 +99,10 @@ public class GraphInput {
     public static void main (String args[]) {
           SimpleGraph G;
           G = new SimpleGraph();
-          LoadSimpleGraph(G, args[0]);
+//          System.out.print("Enter the file path: ");
+//          Scanner input = new Scanner(System.in);
+          LoadSimpleGraph(G, "./testGraphs/path.txt");
+          MinHeapImplementation imp = new MinHeapImplementation(G, G.aVertex());
+          imp.runAlgorithm();
     }
 }
