@@ -6,7 +6,10 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
@@ -16,6 +19,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
 
 /**
  * This class runs the program and contains all tests.
@@ -38,10 +42,10 @@ public class Driver {
 	private final JFileChooser myChooser;
 	
 	/** ComboBox displaying the list of cities to start from. */
-	private final JComboBox<DijkstraHeapNode> myStartCities;
+	private final JComboBox<Vertex> myStartCities;
 	
 	/** ComboBox displaying the list of cities to end. */
-	private final JComboBox<DijkstraHeapNode> myEndCities;
+	private final JComboBox<Vertex> myEndCities;
 	
 	/** Displays the current distance from the starting city to the ending. */
 	private final JLabel myCityDistance;
@@ -53,13 +57,16 @@ public class Driver {
 	private SimpleGraph myGraph;
 	
 	/** The list of all DijkstraHeapNodes nodes. */
-	private List<DijkstraHeapNode> myNodes;
+	private Set<Vertex> myVertices;
 	
 	/** The button that switches the algorithm being implemented to the MinHeap. */
 	private JRadioButton myHeapButton;
 	
 	/** The button that switches the algorithm being implemented to the array. */
 	private JRadioButton myArrayButton;
+	
+	/** The path from the starting city to the ending city. */
+	private JLabel myPath;
 	
 	/**
 	 * Initialize a new Driver.
@@ -70,10 +77,11 @@ public class Driver {
 		myHeapButton = new JRadioButton();
 		myArrayButton = new JRadioButton();
 		myChooser = new JFileChooser("./testGraphs");
-		myStartCities = new JComboBox<DijkstraHeapNode>();
-		myEndCities = new JComboBox<DijkstraHeapNode>();
+		myStartCities = new JComboBox<Vertex>();
+		myEndCities = new JComboBox<Vertex>();
 		myCityDistance = new JLabel("Distance = ");
-		myNodes = new ArrayList<>();
+		myPath = new JLabel();
+		myVertices = new HashSet<>();
 		setUp();
 	}
 	
@@ -91,17 +99,19 @@ public class Driver {
 	        if (myHeapButton.isSelected()) {
 		        myAlgorithm = new MinHeapImplementation(myGraph);
 		        myAlgorithm.runAlgorithm(myGraph.aVertex());
-		        myNodes = ((MinHeapImplementation) myAlgorithm).getNodes();
+		        myVertices = ((MinHeapImplementation) myAlgorithm).getVertices();
 	        } else {
 	        	//TODO fill out 
 	        	System.out.println("Not yet implemented!!");
 	        }
-	        for (int i = 0; i < myNodes.size(); i++) {
-	        	myStartCities.addItem(myNodes.get(i));
-	        	myEndCities.addItem(myNodes.get(i));
+	        
+	        for (Vertex v : myVertices) {
+	        	myStartCities.addItem(v);
+	        	myEndCities.addItem(v);	        	
 	        }
 		} catch (Exception e) {
 			System.out.println("ERROR");
+			e.printStackTrace();
 		}
 	}
 	
@@ -136,7 +146,14 @@ public class Driver {
 				setUpFileChooserListener();
 			}
 		});
-		
+		JScrollPane pane = new JScrollPane(myPath);
+		myPath.setBackground(Color.WHITE);
+		pane.setBackground(Color.WHITE);
+		pane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+		pane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		pane.setBackground(Color.WHITE);
+		pane.setMaximumSize(new Dimension(100, 200));
+		pane.setPreferredSize(new Dimension(100, 200));
 		startCity.add(startLabel);
 		startCity.add(myStartCities);
 		endCity.add(endLabel);
@@ -146,6 +163,8 @@ public class Driver {
 		myPanel.add(startCity);
 		myPanel.add(endCity);
 		myPanel.add(myCityDistance);
+		myPanel.add(new JLabel("Path: "));
+		myPanel.add(pane);
 		myFrame.add(panel);
 		addButtonListeners();
 		formatFrame();
@@ -157,6 +176,8 @@ public class Driver {
 	private void addButtonListeners() {
 		// Default: use heap implementation
 		myHeapButton.doClick();
+		myHeapButton.setBackground(Color.WHITE);
+		myArrayButton.setBackground(Color.WHITE);
 		final ButtonGroup group = new ButtonGroup();
 		group.add(myHeapButton);
 		group.add(myArrayButton);
@@ -165,7 +186,7 @@ public class Driver {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				myAlgorithm = new MinHeapImplementation(myGraph);
-		        ((MinHeapImplementation) myAlgorithm).reRunAlgorithm((DijkstraHeapNode) myStartCities.getSelectedItem());
+		        myAlgorithm.runAlgorithm((Vertex) myStartCities.getSelectedItem());
 			}
 		});
 		
@@ -193,9 +214,15 @@ public class Driver {
 			@Override
 			public void itemStateChanged(ItemEvent arg) {
 				if (myHeapButton.isSelected()) {
-					((MinHeapImplementation) myAlgorithm).reRunAlgorithm((DijkstraHeapNode) arg.getItem());
-					myCityDistance.setText("Distance = " + ((DijkstraHeapNode) 
-							myStartCities.getSelectedItem()).getDistance());
+					Vertex start = (Vertex) myStartCities.getSelectedItem();
+					Vertex last = (Vertex) myEndCities.getSelectedItem();
+					if (last != null) {
+						myCityDistance.setText("Distance = " 
+								+ ((MinHeapImplementation) myAlgorithm)
+								.getCorrespondingNode(last).getDistance());
+						myPath.setText(myAlgorithm.getPath(start, last));
+					} 
+					myAlgorithm.runAlgorithm(start);
 				} else {
 					//TODO fill this part out
 				}
@@ -205,8 +232,12 @@ public class Driver {
 			@Override
 			public void itemStateChanged(ItemEvent arg) {
 				//TODO if you aren't using dijkstraheapnodes, modify
-				myCityDistance.setText(DISTANCE + ((DijkstraHeapNode) 
-						myEndCities.getSelectedItem()).getDistance());
+				DijkstraHeapNode node = ((MinHeapImplementation) myAlgorithm)
+						.getCorrespondingNode((Vertex) myEndCities.getSelectedItem());
+				myCityDistance.setText(DISTANCE + node.getDistance());
+				myPath.setText(myAlgorithm.getPath(
+						(Vertex) myStartCities.getSelectedItem(), 
+						(Vertex) myEndCities.getSelectedItem()));
 			}
 			
 		});

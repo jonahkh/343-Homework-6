@@ -78,6 +78,7 @@ public class BinaryHeap {
         }
         
         size++;
+        key.setIndex(size);
         elements[size] = key;
         percolateUp(key);
     }
@@ -106,14 +107,7 @@ public class BinaryHeap {
      * @param target     the node whose distance changed
      */
     public void percolateUp(DijkstraHeapNode target) {
-    	int index = elements.length - 1;
-    	for (int i = 1; i < elements.length; i++) {
-    		if (elements[i] == target) {
-    			index = i;
-    			break;
-    		}
-    	}
-    	
+    	int index = target.getIndex();
         DijkstraHeapNode temp = elements[index];  // keep track of the item to be moved
         while (index > 1) {
             if (temp.compareTo(elements[index/2]) < 0) {
@@ -123,6 +117,8 @@ public class BinaryHeap {
                 break;
             }
         }
+        temp.setIndex(index);
+        target.setIndex(index);
         elements[index] = temp;
     }
     

@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -33,7 +34,9 @@ public class MinHeapImplementation implements Algorithm{
 	/** The ending vertex. */
 	private Vertex end;
 	
-	private List<DijkstraHeapNode> nodes;
+	/** Maps each vertex to its corresponding DijkstraHeapNode. */
+	private Map<Vertex, DijkstraHeapNode> myNodes;
+	
 
 	/**
 	 * Initialize a new MinHeapImplementation.
@@ -43,7 +46,6 @@ public class MinHeapImplementation implements Algorithm{
 		g = G;
 		vertices = G.vertexList;
 		edges = G.edgeList;
-		nodes = new ArrayList<>();
 	}
 	
 	/**
@@ -53,40 +55,42 @@ public class MinHeapImplementation implements Algorithm{
 	 */
 	public void runAlgorithm(Vertex s) {
 		start = s;
+		myNodes = new HashMap<Vertex, DijkstraHeapNode>();
 		Iterator iter = g.vertices();
 		// Populate the heap
 		while (iter.hasNext()) {
 			Vertex v = (Vertex) iter.next();
 			int path = Integer.MAX_VALUE;
-			if (v == start)  {
-				path = 0;
-			}
 			DijkstraHeapNode node = new DijkstraHeapNode(v, path);
-			nodes.add(node);
+			if (v == start)  {
+				node.setDistance(0);
+				node.setPrev(null);
+			}
+			myNodes.put(v, node);
+//			nodes.add(node);
 			node.setKnown(false);
 			v.setData(node);
 			heap.insert(node);
 		}
 		
 		while (!heap.isEmpty()) {
-			System.out.println();
 			DijkstraHeapNode u;
 			try {
 				u = (DijkstraHeapNode) heap.deleteMin();
 				u.setKnown(true);
-				System.out.println(u.toString());
+//				System.out.println(u.toString());
 				Iterator neighbors = g.incidentEdges(u.getVertex());
 				while (neighbors.hasNext()) {
 					Edge e = ((Edge) neighbors.next());
 					DijkstraHeapNode node = (DijkstraHeapNode) g.opposite(u.getVertex(), e).getData();
-					System.out.println("current neighbor = " + node.toString());
+//					System.out.println("current neighbor = " + node.toString());
 					if (!node.isKnown()) {
 						int distance = u.getDistance() + ((int) (double) e.getData());
 						int vDistance = node.getDistance();
 						if (distance < vDistance) {
-							System.out.println("new distance = " + distance);
+//							System.out.println("new distance = " + distance);
 							node.setDistance(distance);
-							node.setVertex(u.getVertex());
+							node.setPrev(u);
 							heap.percolateUp(node);
 						}
 					}
@@ -99,6 +103,35 @@ public class MinHeapImplementation implements Algorithm{
 	}
 	
 	/**
+	 * Return the shortest path description starting from the starting vertex and ending at
+	 * the last vertex.
+	 * 
+	 * @param first
+	 * @param last
+	 * @return
+	 */
+	public String getPath(Vertex first, Vertex last) {
+		StringBuilder builder = new StringBuilder();
+		DijkstraHeapNode current = myNodes.get(last);
+		DijkstraHeapNode previous = myNodes.get(last).getPrev();
+		builder.append("End => " + current.toString() + "<br>");
+		// Check that the path contains at least two nodes
+		if (current.getPrev() != null) {
+			current = current.getPrev();
+			previous = previous.getPrev();
+		}
+		while (current.getPrev() != null) {
+			builder.insert(0, " => " + current.toString() + "<br>");
+			current = previous;
+			previous = current.getPrev();
+		}
+		builder.insert(0, "Start => " + current.toString() + "<br>");
+		builder.insert(0, "<html>");
+		builder.append("</html>");
+		return builder.toString();
+	}
+	
+	/**
 	 * Reruns the algorithm with the passed node as the starting city.
 	 * 
 	 * @param node the new starting node
@@ -108,11 +141,21 @@ public class MinHeapImplementation implements Algorithm{
 	}
 	
 	/**
-	 * Return the list of all DijkstraHeapNodes.
+	 * Return a set of all the vertices.
 	 * 
-	 * @return the list of all DijkstraHeapNodes
+	 * @return a set of all the vertices
 	 */
-	public List<DijkstraHeapNode> getNodes() {
-		return nodes;
+	public Set<Vertex> getVertices() {
+		return myNodes.keySet();
+	}
+	
+	/**
+	 * Returns the DijkstraHeapNode corresponding to the passed vertex.
+	 * 
+	 * @param v the vertex being searched for
+	 * @return the DijkstraHeapNode corresponding to v
+	 */
+	public DijkstraHeapNode getCorrespondingNode(Vertex v) {
+		return myNodes.get(v);
 	}
 }

@@ -7,4 +7,5 @@
  */
 public interface Algorithm {
 	public void runAlgorithm(Vertex v);
+	public String getPath(Vertex v, Vertex u);
 }

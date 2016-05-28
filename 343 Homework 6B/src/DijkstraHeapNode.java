@@ -16,7 +16,10 @@ public class DijkstraHeapNode implements Comparable<DijkstraHeapNode> {
 	private boolean known = false;
 	
 	/** The vertex that points to this node's vertex. */
-	private Vertex prev;
+	private DijkstraHeapNode prev;
+	
+	/** The index of this node's location in the heap. */
+	 private int index;
 	
 	
 	/**
@@ -28,6 +31,42 @@ public class DijkstraHeapNode implements Comparable<DijkstraHeapNode> {
 	public DijkstraHeapNode(Vertex v, int p) {
 		distance = p;
 		vertex = v;
+	}
+	
+	/**
+	 * Return the node pointing to this node.
+	 * 
+	 * @return the node pointing to this node
+	 */
+	public DijkstraHeapNode getPrev() {
+		return prev;
+	}
+	
+	/**
+	 * Set the node pointing to this node to the passed value.
+	 * 
+	 * @param node the node that points to this node
+	 */
+	public void setPrev(DijkstraHeapNode node) {
+		prev = node;
+	}
+	
+	/**
+	 * Set the index of this node's location in the heap to the passed value.
+	 * 
+	 * @param i the index
+	 */
+	public void setIndex(int i) {
+		index = i;
+	}
+	
+	/**
+	 * Return the current index of this node in the heap.
+	 * 
+	 * @return the index of this node
+	 */
+	public int getIndex() {
+		return index;
 	}
 	
 	/**
@@ -59,15 +98,6 @@ public class DijkstraHeapNode implements Comparable<DijkstraHeapNode> {
 	 */
 	public Vertex getVertex() {
 		return vertex;
-	}
-	
-	/**
-	 * Set the vertex pointing to this node's vertex to the passed vertex.
-	 * 
-	 * @param prev the vertex pointing to this node's vertex
-	 */
-	public void setVertex(Vertex prev) {
-		this.prev = prev;
 	}
 	
 	/**
