@@ -5,14 +5,18 @@
  * @author Jacob Tillett
  */
 public class DijkstraHeapNode implements Comparable<DijkstraHeapNode> {
-	/** The path length of this node from the root. */
-	private int pathLength;
+	
+	/** The distance of this node from the root. */
+	private int distance;
 	
 	/** The vertex this node points to. */
 	private Vertex vertex;
 	
 	/** Determines whether this vertex is included in the known set. */
 	private boolean known = false;
+	
+	/** The vertex that points to this node's vertex. */
+	private Vertex prev;
 	
 	
 	/**
@@ -22,18 +26,31 @@ public class DijkstraHeapNode implements Comparable<DijkstraHeapNode> {
 	 * @param p the path length of this node from the root
 	 */
 	public DijkstraHeapNode(Vertex v, int p) {
-		pathLength = p;
+		distance = p;
 		vertex = v;
 	}
 	
 	/**
-	 * Return the pathLength of this node.
+	 * Return the distance of this node.
 	 * 
-	 * @return the pathLength of this node
+	 * @return the distance of this node
 	 */
-	public int getDepth() {
-		return pathLength;
+	public int getDistance() {
+		return distance;
 	}
+	
+	/**
+	 * Set the distance of this node from the root to the passed value.
+	 * 
+	 * @param d the new distance for this node
+	 */
+	public void setDistance(int d) {
+		distance = d;
+	}
+	
+	/**
+	 * Set the path length of 
+	 */
 	
 	/**
 	 * Return the vertex associated with this node.
@@ -42,6 +59,24 @@ public class DijkstraHeapNode implements Comparable<DijkstraHeapNode> {
 	 */
 	public Vertex getVertex() {
 		return vertex;
+	}
+	
+	/**
+	 * Set the vertex pointing to this node's vertex to the passed vertex.
+	 * 
+	 * @param prev the vertex pointing to this node's vertex
+	 */
+	public void setVertex(Vertex prev) {
+		this.prev = prev;
+	}
+	
+	/**
+	 * Return if this vertex is in the known set.
+	 * 
+	 * @return true if this vertex is in the known set, false otherwise
+	 */
+	public boolean isKnown() {
+		return known;
 	}
 	
 	/**
@@ -55,12 +90,12 @@ public class DijkstraHeapNode implements Comparable<DijkstraHeapNode> {
 	
 	@Override
 	public int compareTo(DijkstraHeapNode other) {
-		return pathLength - other.pathLength;
+		return distance - other.distance;
 	}
 	
 	@Override
 	public String toString() {
-		return "name: " + vertex.getName() + ", path length: "+ pathLength;
+		return vertex.getName().toString();
 	}
 
 }

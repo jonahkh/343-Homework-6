@@ -102,7 +102,16 @@ public class GraphInput {
 //          System.out.print("Enter the file path: ");
 //          Scanner input = new Scanner(System.in);
           LoadSimpleGraph(G, "./testGraphs/path.txt");
-          MinHeapImplementation imp = new MinHeapImplementation(G, G.aVertex());
-          imp.runAlgorithm();
+          Iterator iter = G.vertices();
+          Vertex end = null;
+          while (iter.hasNext()) {
+        	  Vertex current =  (Vertex) iter.next();
+        	  if (Integer.parseInt((String) (current.getName())) == 7) {
+        		  end = current;
+        	  }
+          }
+          MinHeapImplementation imp = new MinHeapImplementation(G);
+          imp.runAlgorithm(G.aVertex());
+//          System.out.println("distance = " + imp.getDistance(end));
     }
 }

@@ -9,14 +9,14 @@ public class BinaryHeap {
     /* the heap is organized using the implicit array implementation.
      * Array index 0 is not used
      */
-    private Comparable[] elements;
+    private DijkstraHeapNode[] elements;
     private int size;       // index of last element in the heap
     
     // Constructor
     public BinaryHeap() {
         int initialCapacity = 10;
         
-        this.elements = new Comparable[initialCapacity + 1];
+        this.elements = new DijkstraHeapNode[initialCapacity + 1];
         this.elements[0] = null;
         this.size = 0;
     }
@@ -27,19 +27,19 @@ public class BinaryHeap {
      * @param capacity  number of active elements the heap can contain
      */    
     public BinaryHeap(int capacity) {
-        this.elements = new Comparable[capacity + 1];
+        this.elements = new DijkstraHeapNode[capacity + 1];
         this.elements[0] = null;
         this.size = 0;
     }
     
     
     /**
-     * Given an array of Comparables, return a binary heap of those
+     * Given an array of DijkstraHeapNodes, return a binary heap of those
      * elements.
      * @param data  an array of data (no particular order)
      * @return  a binary heap of the given data
      */
-    public static BinaryHeap buildHeap(Comparable[] data) {
+    public static BinaryHeap buildHeap(DijkstraHeapNode[] data) {
         BinaryHeap newHeap = new BinaryHeap(data.length);
         for (int i = 0; i < data.length; i++) {
             newHeap.elements[i+1] = data[i];
@@ -65,12 +65,12 @@ public class BinaryHeap {
      * Insert an object into the heap.
      * @param key   a key
      */
-    public void insert(Comparable key) {
+    public void insert(DijkstraHeapNode key) {
 
         if (size >= elements.length - 1) {
             // not enough room -- create a new array and copy
             // the elements of the old array to the new
-            Comparable[] newElements = new Comparable[2*size];
+            DijkstraHeapNode[] newElements = new DijkstraHeapNode[2*size];
             for (int i = 0; i < elements.length; i++) {
                 newElements[i] = elements[i];
             }
@@ -79,7 +79,7 @@ public class BinaryHeap {
         
         size++;
         elements[size] = key;
-        percolateUp(size);
+        percolateUp(key);
     }
     
     
@@ -87,9 +87,9 @@ public class BinaryHeap {
      * Remove the object with minimum key from the heap.
      * @return  the object with minimum key of the heap
      */
-    public Comparable deleteMin() throws EmptyHeapException {
+    public DijkstraHeapNode deleteMin() throws EmptyHeapException {
         if (!isEmpty()) {
-            Comparable returnValue = elements[1];
+            DijkstraHeapNode returnValue = elements[1];
             elements[1] = elements[size];
             size--;
             percolateDown(1);
@@ -103,10 +103,18 @@ public class BinaryHeap {
     
     /**
      * Given an index in the heap array, percolate that key up the heap.
-     * @param index     an index into the heap array
+     * @param target     the node whose distance changed
      */
-    private void percolateUp(int index) {
-        Comparable temp = elements[index];  // keep track of the item to be moved
+    public void percolateUp(DijkstraHeapNode target) {
+    	int index = elements.length - 1;
+    	for (int i = 1; i < elements.length; i++) {
+    		if (elements[i] == target) {
+    			index = i;
+    			break;
+    		}
+    	}
+    	
+        DijkstraHeapNode temp = elements[index];  // keep track of the item to be moved
         while (index > 1) {
             if (temp.compareTo(elements[index/2]) < 0) {
                 elements[index] = elements[index/2];
@@ -125,7 +133,7 @@ public class BinaryHeap {
      */
     private void percolateDown(int index) {
         int child;
-        Comparable temp = elements[index];
+        DijkstraHeapNode temp = elements[index];
         
         while (2*index <= size) {
             child = 2 * index;

@@ -1,3 +1,21 @@
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.util.ArrayList;
+import java.util.List;
+import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 
 /**
  * This class runs the program and contains all tests.
@@ -7,6 +25,194 @@
  */
 public class Driver {
 	
+	/** Text that displays the current distance from the starting city to the ending city. */
+	public static final String DISTANCE = "Distance = ";
+	
+	/** The JFrame for this interface. */
+	private final JFrame myFrame;
+	
+	/** The main panel housing all components. */
+	private final JPanel myPanel;
+	
+	/** File chooser to select the graph input file. */
+	private final JFileChooser myChooser;
+	
+	/** ComboBox displaying the list of cities to start from. */
+	private final JComboBox<DijkstraHeapNode> myStartCities;
+	
+	/** ComboBox displaying the list of cities to end. */
+	private final JComboBox<DijkstraHeapNode> myEndCities;
+	
+	/** Displays the current distance from the starting city to the ending. */
+	private final JLabel myCityDistance;
+	
+	/** The current algorithm being used. */
+	private Algorithm myAlgorithm;
+	
+	/** The current graph. */
+	private SimpleGraph myGraph;
+	
+	/** The list of all DijkstraHeapNodes nodes. */
+	private List<DijkstraHeapNode> myNodes;
+	
+	/** The button that switches the algorithm being implemented to the MinHeap. */
+	private JRadioButton myHeapButton;
+	
+	/** The button that switches the algorithm being implemented to the array. */
+	private JRadioButton myArrayButton;
+	
+	/**
+	 * Initialize a new Driver.
+	 */
+	public Driver() {
+		myFrame = new JFrame("Trip Planner");
+		myPanel = new JPanel();
+		myHeapButton = new JRadioButton();
+		myArrayButton = new JRadioButton();
+		myChooser = new JFileChooser("./testGraphs");
+		myStartCities = new JComboBox<DijkstraHeapNode>();
+		myEndCities = new JComboBox<DijkstraHeapNode>();
+		myCityDistance = new JLabel("Distance = ");
+		myNodes = new ArrayList<>();
+		setUp();
+	}
+	
+	/**
+	 * Set up the file chooser listener.
+	 */
+	private void setUpFileChooserListener() {
+		myChooser.showOpenDialog(myFrame);
+		try {
+			
+			myGraph = new SimpleGraph();
+	        GraphInput.LoadSimpleGraph(myGraph, myChooser.getSelectedFile().toString());
+	        myStartCities.removeAllItems();
+	        myEndCities.removeAllItems();
+	        if (myHeapButton.isSelected()) {
+		        myAlgorithm = new MinHeapImplementation(myGraph);
+		        myAlgorithm.runAlgorithm(myGraph.aVertex());
+		        myNodes = ((MinHeapImplementation) myAlgorithm).getNodes();
+	        } else {
+	        	//TODO fill out 
+	        	System.out.println("Not yet implemented!!");
+	        }
+	        for (int i = 0; i < myNodes.size(); i++) {
+	        	myStartCities.addItem(myNodes.get(i));
+	        	myEndCities.addItem(myNodes.get(i));
+	        }
+		} catch (Exception e) {
+			System.out.println("ERROR");
+		}
+	}
+	
+	/**
+	 * Set up the components of the user interface. 
+	 */
+	private void setUp() {
+		final JPanel panel = new JPanel();
+		final JPanel startCity = new JPanel();
+		final JPanel endCity = new JPanel();
+		final JLabel startLabel = new JLabel("Starting City");
+		final JLabel endLabel = new JLabel("Ending City");
+		final JPanel northPanel = new JPanel();
+		final JLabel heapMode = new JLabel("Heap implementation");
+		final JLabel arrayMode = new JLabel("Array implementation");
+		final JButton chooseFile = new JButton("Choose File");
+		
+		northPanel.setBackground(Color.WHITE);
+		northPanel.add(chooseFile);
+		northPanel.add(heapMode);
+		northPanel.add(myHeapButton);
+		northPanel.add(arrayMode);
+		northPanel.add(myArrayButton);
+		startCity.setBackground(Color.WHITE);
+		endCity.setBackground(Color.WHITE);
+		panel.setBackground(Color.WHITE);
+		myPanel.setBackground(Color.WHITE);
+		myPanel.setLayout(new BoxLayout(myPanel, BoxLayout.Y_AXIS));
+		chooseFile.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(final ActionEvent theEvent) {
+				setUpFileChooserListener();
+			}
+		});
+		
+		startCity.add(startLabel);
+		startCity.add(myStartCities);
+		endCity.add(endLabel);
+		endCity.add(myEndCities);
+		panel.add(myPanel);
+		myPanel.add(northPanel);
+		myPanel.add(startCity);
+		myPanel.add(endCity);
+		myPanel.add(myCityDistance);
+		myFrame.add(panel);
+		addButtonListeners();
+		formatFrame();
+	}
+	
+	/**
+	 * Add the listeners for the buttons. 
+	 */
+	private void addButtonListeners() {
+		// Default: use heap implementation
+		myHeapButton.doClick();
+		final ButtonGroup group = new ButtonGroup();
+		group.add(myHeapButton);
+		group.add(myArrayButton);
+
+		myHeapButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				myAlgorithm = new MinHeapImplementation(myGraph);
+		        ((MinHeapImplementation) myAlgorithm).reRunAlgorithm((DijkstraHeapNode) myStartCities.getSelectedItem());
+			}
+		});
+		
+		myArrayButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub	
+			}
+		});
+	}
+	
+	/**
+	 * Format the JFrame.
+	 */
+	private void formatFrame() {
+		final Toolkit kit = Toolkit.getDefaultToolkit();
+		myFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		myFrame.setBackground(Color.WHITE);
+		myFrame.setSize(new Dimension(600, 600));
+		myFrame.setResizable(false);
+		myFrame.setLocation((int) (kit.getScreenSize().getWidth() / 2 - myFrame.getWidth() / 2),
+				(int) (kit.getScreenSize().getHeight() / 2 - myFrame.getHeight() / 2));
+		myStartCities.setBackground(Color.WHITE);
+		myStartCities.addItemListener(new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent arg) {
+				if (myHeapButton.isSelected()) {
+					((MinHeapImplementation) myAlgorithm).reRunAlgorithm((DijkstraHeapNode) arg.getItem());
+					myCityDistance.setText("Distance = " + ((DijkstraHeapNode) 
+							myStartCities.getSelectedItem()).getDistance());
+				} else {
+					//TODO fill this part out
+				}
+			}});
+		myEndCities.setBackground(Color.WHITE);
+		myEndCities.addItemListener(new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent arg) {
+				//TODO if you aren't using dijkstraheapnodes, modify
+				myCityDistance.setText(DISTANCE + ((DijkstraHeapNode) 
+						myEndCities.getSelectedItem()).getDistance());
+			}
+			
+		});
+		myFrame.setVisible(true);
+	}
+	
 	/**
 	 * Main method. Runs the program and all tests.
 	 * 
@@ -14,5 +220,7 @@ public class Driver {
 	 */
 	public static void main(String... args) {
 		BinaryHeap b = new BinaryHeap();
+		Driver d = new Driver();
+
 	}
 }	
