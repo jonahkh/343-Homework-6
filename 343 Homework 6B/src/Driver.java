@@ -5,6 +5,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -68,6 +69,9 @@ public class Driver {
 	/** The path from the starting city to the ending city. */
 	private JLabel myPath;
 	
+	/** The currently selected file. */
+	private File myFile;
+	
 	/**
 	 * Initialize a new Driver.
 	 */
@@ -91,26 +95,28 @@ public class Driver {
 	private void setUpFileChooserListener() {
 		myChooser.showOpenDialog(myFrame);
 		try {
-			
-			myGraph = new SimpleGraph();
-	        GraphInput.LoadSimpleGraph(myGraph, myChooser.getSelectedFile().toString());
-	        myStartCities.removeAllItems();
-	        myEndCities.removeAllItems();
-	        if (myHeapButton.isSelected()) {
-		        myAlgorithm = new MinHeapImplementation(myGraph);
-		        myAlgorithm.runAlgorithm(myGraph.aVertex());
-		        myVertices = ((MinHeapImplementation) myAlgorithm).getVertices();
-	        } else {
-	        	//TODO fill out 
-	        	System.out.println("Not yet implemented!!");
-	        }
-	        
-	        for (Vertex v : myVertices) {
-	        	myStartCities.addItem(v);
-	        	myEndCities.addItem(v);	        	
-	        }
+			if (myChooser.getSelectedFile() != myFile) {
+				myFile = myChooser.getSelectedFile();
+				myGraph = new SimpleGraph();
+		        GraphInput.LoadSimpleGraph(myGraph, myChooser.getSelectedFile().toString());
+		        myStartCities.removeAllItems();
+		        myEndCities.removeAllItems();
+		        if (myHeapButton.isSelected()) {
+			        myAlgorithm = new MinHeapImplementation(myGraph);
+			        myAlgorithm.runAlgorithm(myGraph.aVertex());
+			        myVertices = ((MinHeapImplementation) myAlgorithm).getVertices();
+		        } else {
+		        	//TODO fill out 
+		        	System.out.println("Not yet implemented!!");
+		        }
+		        int i = 0;
+		        for (Vertex v : myVertices) {
+		        	myStartCities.addItem(v);
+		        	myEndCities.addItem(v);	      
+		        	i++;
+		        }
+			}
 		} catch (Exception e) {
-			System.out.println("ERROR");
 			e.printStackTrace();
 		}
 	}
@@ -185,14 +191,19 @@ public class Driver {
 		myHeapButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				myAlgorithm = new MinHeapImplementation(myGraph);
-		        myAlgorithm.runAlgorithm((Vertex) myStartCities.getSelectedItem());
+				if (myChooser.getSelectedFile() != null) {
+					myAlgorithm = new MinHeapImplementation(myGraph);
+		        	myAlgorithm.runAlgorithm((Vertex) myStartCities.getSelectedItem());
+				}
 			}
 		});
 		
 		myArrayButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				if (myChooser.getSelectedFile() != null) {
+					
+				}
 				// TODO Auto-generated method stub	
 			}
 		});
