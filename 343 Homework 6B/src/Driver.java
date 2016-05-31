@@ -102,6 +102,9 @@ public class Driver {
 		        myVertices = ((MinHeapImplementation) myAlgorithm).getVertices();
 	        } else {
 	        	//TODO fill out 
+		        myAlgorithm = new ArrayImplementation(myGraph);
+		        myAlgorithm.runAlgorithm(myGraph.aVertex());
+		        myVertices = ((ArrayImplementation) myAlgorithm).getVertices();
 	        	System.out.println("Not yet implemented!!");
 	        }
 	        
@@ -193,7 +196,9 @@ public class Driver {
 		myArrayButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub	
+				// TODO Auto-generated method stub
+				myAlgorithm = new ArrayImplementation(myGraph);
+				myAlgorithm.runAlgorithm((Vertex) myStartCities.getSelectedItem());
 			}
 		});
 	}
@@ -225,6 +230,15 @@ public class Driver {
 					myAlgorithm.runAlgorithm(start);
 				} else {
 					//TODO fill this part out
+					Vertex start = (Vertex) myStartCities.getSelectedItem();
+					Vertex last = (Vertex) myEndCities.getSelectedItem();
+					if (last != null) {
+						myCityDistance.setText("Distance = " 
+								+ ((ArrayImplementation) myAlgorithm)
+								.getCorrespondingNode(last).getDistance());
+						myPath.setText(myAlgorithm.getPath(start, last));
+					} 
+					myAlgorithm.runAlgorithm(start);
 				}
 			}});
 		myEndCities.setBackground(Color.WHITE);
@@ -232,12 +246,21 @@ public class Driver {
 			@Override
 			public void itemStateChanged(ItemEvent arg) {
 				//TODO if you aren't using dijkstraheapnodes, modify
-				DijkstraHeapNode node = ((MinHeapImplementation) myAlgorithm)
-						.getCorrespondingNode((Vertex) myEndCities.getSelectedItem());
-				myCityDistance.setText(DISTANCE + node.getDistance());
-				myPath.setText(myAlgorithm.getPath(
-						(Vertex) myStartCities.getSelectedItem(), 
-						(Vertex) myEndCities.getSelectedItem()));
+				if(myHeapButton.isSelected()) {
+					DijkstraHeapNode node = ((MinHeapImplementation) myAlgorithm)
+							.getCorrespondingNode((Vertex) myEndCities.getSelectedItem());
+					myCityDistance.setText(DISTANCE + node.getDistance());
+					myPath.setText(myAlgorithm.getPath(
+							(Vertex) myStartCities.getSelectedItem(), 
+							(Vertex) myEndCities.getSelectedItem()));
+				} else {
+					DijkstraHeapNode node = ((ArrayImplementation) myAlgorithm)
+							.getCorrespondingNode((Vertex) myEndCities.getSelectedItem());
+					myCityDistance.setText(DISTANCE + node.getDistance());
+					myPath.setText(myAlgorithm.getPath(
+							(Vertex) myStartCities.getSelectedItem(), 
+							(Vertex) myEndCities.getSelectedItem()));
+				}
 			}
 			
 		});
