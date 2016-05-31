@@ -92,6 +92,7 @@ public class BinaryHeap {
         if (!isEmpty()) {
             DijkstraHeapNode returnValue = elements[1];
             elements[1] = elements[size];
+            elements[1].setIndex(1);
             size--;
             percolateDown(1);
             return returnValue;
@@ -112,6 +113,7 @@ public class BinaryHeap {
         while (index > 1) {
             if (temp.compareTo(elements[index/2]) < 0) {
                 elements[index] = elements[index/2];
+                elements[index].setIndex(index);
                 index = index / 2;
             } else {
                 break;
@@ -141,12 +143,14 @@ public class BinaryHeap {
             // the two children
             if (elements[child].compareTo(temp) < 0) {
                 elements[index] = elements[child];
+                elements[index].setIndex(index);
                 index = child;
             } else {
                 break;
             }
         }
         elements[index] = temp;
+        elements[index].setIndex(index);
     
     }
 }
