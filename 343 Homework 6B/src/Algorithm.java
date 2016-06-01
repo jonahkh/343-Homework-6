@@ -1,4 +1,3 @@
-
 /**
  * Interface for the two different algorithms we are implementing.
  * 

@@ -2,6 +2,7 @@
  * A binary minheap of comparable objects.
  * 
  * @author Donald Chinn
+ * @author Jonah Howard 
  * @version September 19, 2003
  */
 public class BinaryHeap {
